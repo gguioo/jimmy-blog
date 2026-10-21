@@ -1,0 +1,16 @@
+{
+  "name": "jimmy-blog",
+  "main": "worker/worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "jimmy-blog-vue/dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/f/*", "/a/*", "/admin", "/admin/*"]
+  },
+  "d1_databases": [{ "binding": "DB", "database_name": "jy-blog", "database_id": "2516e6e5-8849-4f90-bcfd-2035a797e683" }],
+  "r2_buckets": [
+    { "binding": "FEED_IMG", "bucket_name": "jy-blog-feed","preview_bucket_name": "jy-blog-feed" },
+    { "binding": "ART_IMG", "bucket_name": "jy-blog-article","preview_bucket_name": "jy-blog-article" }
+  ]
+}

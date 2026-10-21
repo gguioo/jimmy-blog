@@ -1,0 +1,6 @@
+node_modules
+dist/
+deploy.py
+dist-worker
+.dev.vars
+.wrangler

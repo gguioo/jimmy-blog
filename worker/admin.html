@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>博客管理</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.6 -apple-system,"PingFang SC","Noto Sans SC",sans-serif;background:#f4f5f8;color:#1d2030}
+main{max-width:720px;margin:0 auto;padding:18px 16px 80px}
+h1{font-size:20px;margin:0 0 14px}
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tabs button{flex:1}
+button{font:inherit;border:0;border-radius:10px;padding:10px 14px;background:#e4e6ee;color:#1d2030;cursor:pointer}
+button.on,button.pri{background:#1d2030;color:#fff}
+button.del{background:none;color:#d6452f;padding:4px 8px}
+button.del.sure{background:#d6452f;color:#fff}
+button:disabled{opacity:.5}
+.box{background:#fff;border-radius:14px;padding:16px;margin-bottom:16px;box-shadow:0 2px 10px rgba(20,23,43,.06)}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;padding:10px 12px;border:1px solid #d9dce6;border-radius:10px;margin:0 0 10px;background:#fff}
+textarea{min-height:110px;resize:vertical}
+textarea.code{min-height:260px;font:13px/1.5 ui-monospace,Menlo,monospace}
+label{display:block;font-size:13px;color:#6b7086;margin:4px 0 6px}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.thumbs img{width:72px;height:72px;object-fit:cover;border-radius:8px}
+.cover{max-width:220px;border-radius:10px;display:block;margin:0 0 10px}
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid #eceef3}
+.item:first-child{border-top:0}
+.item img{width:56px;height:56px;object-fit:cover;border-radius:8px;flex:none}
+.item div{flex:1;min-width:0}
+.item p{margin:0;word-break:break-all;white-space:pre-wrap}
+.item small{color:#8a8fa3}
+.links{font:12px/1.5 ui-monospace,Menlo,monospace;word-break:break-all;background:#f4f5f8;border-radius:8px;padding:8px;margin:0 0 10px}
+.links div{display:flex;gap:6px;align-items:center;margin:2px 0}
+.links span{flex:1}
+.links button{padding:2px 8px;font-size:12px}
+.msg{font-size:13px;color:#6b7086;min-height:20px}
+.hide{display:none}
+</style>
+</head>
+<body>
+<main>
+  <h1>博客管理</h1>
+
+  <section id="login" class="box">
+    <label>管理密钥</label>
+    <input type="password" id="token" autocomplete="current-password">
+    <button class="pri" id="btnLogin">进入</button>
+    <div class="msg" id="loginMsg"></div>
+  </section>
+
+  <div id="app" class="hide">
+    <div class="tabs"><button data-t="feed" class="on">碎片</button><button data-t="art">长文</button><button data-t="av">头像</button><button id="btnClean">清理死图</button><button id="btnOut">退出</button></div>
+
+    <section id="t-feed">
+      <div class="box">
+        <label>文字</label>
+        <textarea id="fText" placeholder="写点什么…"></textarea>
+        <label>照片（碎片图床）</label>
+        <input type="file" id="fFiles" accept="image/*" multiple>
+        <div class="thumbs" id="fThumbs"></div>
+        <button class="pri" id="fPost">发布碎片</button>
+        <div class="msg" id="fMsg"></div>
+      </div>
+      <div class="box" id="fList"></div>
+    </section>
+
+    <section id="t-art" class="hide">
+      <div class="box">
+        <label>标题</label>
+        <input type="text" id="aTitle">
+        <label>正文 HTML（可直接选 .html 文件）</label>
+        <input type="file" id="aFile" accept=".html,.htm,text/html">
+        <textarea class="code" id="aHtml"></textarea>
+        <button class="pri" id="aPost">发布长文</button>
+        <div class="msg" id="aMsg"></div>
+      </div>
+      <div class="box" id="aList"></div>
+    </section>
+    <section id="t-av" class="hide">
+      <div class="box">
+        <label>当前头像（博客导航、碎片、about 三处共用）</label>
+        <img id="avNow" class="cover" style="width:124px;height:124px;object-fit:cover;border-radius:50%" alt="">
+        <label>换一张（建议正方形）</label>
+        <input type="file" id="avFile" accept="image/*">
+        <div class="msg" id="avMsg"></div>
+      </div>
+    </section>
+  </div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let TOKEN=localStorage.getItem('blogAdminToken')||'';
+const day=t=>new Date(t).toLocaleString('zh-CN',{hour12:false}).slice(0,-3);
+
+async function api(path,opt={}){
+  const r=await fetch('/admin'+path,{...opt,headers:{Authorization:'Bearer '+TOKEN,...(opt.body&&!(opt.body instanceof FormData)?{'Content-Type':'application/json'}:{})}});
+  const d=await r.json().catch(()=>({}));
+  if(r.status===401){logout();throw new Error('密钥不对')}
+  if(!r.ok)throw new Error(d.error||r.status);
+  return d;
+}
+// 上传前在手机上转成 JPEG 并压到最长边 2560px；浏览器解不开（如 HEIC）就原样上传
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const s=Math.min(1,2560/Math.max(bmp.width,bmp.height));
+    if(s===1&&/^image\/(jpeg|png|webp|gif)$/.test(file.type)&&file.size<4e6)return file;
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));return b?new File([b],'photo.jpg',{type:'image/jpeg'}):file}
+  catch(_){return file}
+}
+const up=async(kind,file,onp)=>{file=await shrink(file);const fd=new FormData();fd.append('file',file);
+  return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST','/admin/api/upload/'+kind);x.setRequestHeader('Authorization','Bearer '+TOKEN);
+    x.upload.onprogress=e=>{if(e.lengthComputable&&onp)onp(e.loaded/e.total)};
+    x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch(_){}
+      if(x.status===401){logout();return no(new Error('密钥不对'))}
+      if(x.status>=200&&x.status<300&&d.url)return ok(d.url);no(new Error(d.error||('HTTP '+x.status)))};
+    x.onerror=()=>no(new Error('网络错误，上传失败'));x.send(fd)})};
+
+async function login(){
+  TOKEN=$('#token').value.trim()||TOKEN;
+  try{await api('/api/check');localStorage.setItem('blogAdminToken',TOKEN);$('#login').classList.add('hide');$('#app').classList.remove('hide');loadFeed();loadArt();loadAv()}
+  catch(e){$('#loginMsg').textContent=e.message}
+}
+function logout(){TOKEN='';localStorage.removeItem('blogAdminToken');$('#app').classList.add('hide');$('#login').classList.remove('hide')}
+$('#btnLogin').onclick=login;$('#token').onkeydown=e=>{if(e.key==='Enter')login()};$('#btnOut').onclick=logout;
+if(TOKEN)login();
+
+document.querySelector('.tabs').onclick=e=>{const t=e.target.dataset.t;if(!t)return;
+  document.querySelectorAll('.tabs [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  $('#t-feed').classList.toggle('hide',t!=='feed');$('#t-art').classList.toggle('hide',t!=='art');$('#t-av').classList.toggle('hide',t!=='av')};
+
+/* ---------- avatar ---------- */
+async function loadAv(){const d=await fetch('/admin/api/profile').then(r=>r.json()).catch(()=>({}));
+  if(d.avatar){$('#avNow').src=d.avatar;$('#avNow').style.display=''}else{$('#avNow').style.display='none';$('#avMsg').textContent='还没设置，博客在用默认头像'}}
+$('#avFile').onchange=async e=>{let f=e.target.files[0];e.target.value='';if(!f)return;
+  $('#avMsg').textContent='上传中…';f=await shrink(f);const fd=new FormData();fd.append('file',f);
+  try{const d=await api('/api/avatar',{method:'POST',body:fd});$('#avNow').src=d.avatar;$('#avNow').style.display='';$('#avMsg').textContent='已更换，博客刷新就能看到'}
+  catch(err){$('#avMsg').textContent='上传失败：'+err.message}};
+
+/* ---------- feed ---------- */
+let fPhotos=[];
+$('#fFiles').onchange=async e=>{
+  const files=[...e.target.files];e.target.value='';$('#fMsg').textContent=`上传中 0/${files.length}`;
+  try{for(const [i,f] of files.entries()){fPhotos.push(await up('feed',f,p=>{$('#fMsg').textContent=`上传中 ${i+1}/${files.length} · ${Math.round(p*100)}%`}));$('#fThumbs').innerHTML=fPhotos.map(u=>`<img src="${u}" alt="">`).join('')}$('#fMsg').textContent=`已上传 ${files.length} 张，可以发布了`}
+  catch(err){$('#fMsg').textContent='上传失败：'+err.message}
+  $('#fThumbs').innerHTML=fPhotos.map(u=>`<img src="${u}" alt="">`).join('');
+};
+$('#fPost').onclick=async()=>{
+  const text=$('#fText').value;if(!text.trim()&&!fPhotos.length)return;
+  $('#fPost').disabled=true;
+  try{await api('/api/feed',{method:'POST',body:JSON.stringify({text,photos:fPhotos})});
+    $('#fText').value='';fPhotos=[];$('#fThumbs').innerHTML='';$('#fMsg').textContent='已发布';loadFeed()}
+  catch(e){$('#fMsg').textContent='发布失败：'+e.message}
+  $('#fPost').disabled=false;
+};
+async function loadFeed(){
+  const list=await fetch('/admin/api/feed').then(r=>r.json());
+  $('#fList').innerHTML=list.length?list.map(f=>`<div class="item">${f.photos[0]?`<img src="${f.photos[0]}" alt="">`:''}<div><p>${esc(f.text)||'（仅图片）'}</p><small>${day(f.created_at)} · ${f.photos.length} 张图</small></div><button class="del" data-del="feed/${f.id}">删除</button></div>`).join(''):'<small>还没有碎片</small>';
+}
+
+/* ---------- articles ---------- */
+$('#aFile').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(f)$('#aHtml').value=await f.text()};
+$('#aPost').onclick=async()=>{
+  const title=$('#aTitle').value,html=$('#aHtml').value;
+  if(!title.trim()||!html.trim()){$('#aMsg').textContent='标题和正文都要有';return}
+  $('#aPost').disabled=true;
+  try{await api('/api/articles',{method:'POST',body:JSON.stringify({title,html})});
+    $('#aTitle').value='';$('#aHtml').value='';
+    $('#aMsg').textContent='已发布';loadArt()}
+  catch(e){$('#aMsg').textContent='发布失败：'+e.message}
+  $('#aPost').disabled=false;
+};
+async function loadArt(){
+  const list=await fetch('/admin/api/articles').then(r=>r.json());
+  $('#aList').innerHTML=list.length?list.map(a=>`<div class="item"><div><p><b>${esc(a.title)}</b></p><small>${day(a.created_at)}</small></div><button class="del" data-del="articles/${a.id}">删除</button></div>`).join(''):'<small>还没有长文</small>';
+}
+
+$('#btnClean').onclick=async()=>{const b=$('#btnClean');if(!confirm('删除所有没被碎片或长文引用、且上传超过 1 小时的图片？'))return;b.disabled=true;
+  try{const r=await api('/api/cleanup',{method:'POST'});alert(`已清理：碎片图 ${r.feed} 张，长文图 ${r.article} 张`)}catch(err){alert('清理失败：'+err.message)}b.disabled=false};
+
+/* ---------- delete / copy ---------- */
+document.addEventListener('click',async e=>{
+  const c=e.target.closest('[data-copy]');if(c){navigator.clipboard.writeText(c.dataset.copy);c.textContent='已复制';return}
+  const d=e.target.closest('[data-del]');
+  document.querySelectorAll('.del.sure').forEach(b=>{if(b!==d){b.classList.remove('sure');b.textContent='删除'}});
+  if(!d)return;
+  if(!d.classList.contains('sure')){d.classList.add('sure');d.textContent='确认删除？';return}
+  d.disabled=true;
+  try{await api('/api/'+d.dataset.del,{method:'DELETE'});d.dataset.del.startsWith('feed')?loadFeed():loadArt()}
+  catch(err){alert('删除失败：'+err.message);d.disabled=false}
+});
+</script>
+</body>
+</html>

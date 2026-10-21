@@ -1,0 +1,233 @@
+/* ============================================================
+   Jimmy Blog — white, handwritten-ink editorial style
+   ============================================================ */
+
+:root {
+  /* palette */
+  --bg: #ffffff;
+  --ink: #1b2130;        /* blue-black ink */
+  --ink-soft: #3c4456;   /* secondary text */
+  --muted: #6d7688;      /* captions */
+  --hairline: #e9ecf1;   /* hairline borders */
+  --wash: #f6f8fc;       /* subtle panel */
+  --accent: #2a4db5;     /* ink-pen blue */
+  --accent-deep: #1e3a8f;
+
+  /* type */
+  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "STSong",
+           "SimSun", "Georgia", serif;
+  --sans: system-ui, -apple-system, "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", "Noto Sans SC", sans-serif;
+
+  /* motion */
+  --ease: cubic-bezier(.22, .8, .3, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; scrollbar-gutter: stable; } /* 永远给滚动条留坑：切页瞬间内容变短也不让整行左右跳 */
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+::selection { background: var(--accent); color: #fff; }
+
+a { color: inherit; text-decoration: none; }
+img { display: block; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- top bar (section views) ---------- */
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg); /* 实底，内容从底下滚过时不透字 */
+  transition: transform .25s var(--ease); /* 滑隐/滑出用 */
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 10px 22px;
+  border-bottom: 1px solid var(--hairline);
+}
+.topbar.nav-hidden { transform: translateY(-100%); } /* 下滑时整条滑出屏幕 */
+
+.topnav { display: flex; align-items: flex-end; gap: 18px; }
+.topnav a { display: block; opacity: .45; transition: opacity .2s var(--ease); }
+.topnav a:hover { opacity: .8; }
+.topnav a img { height: 24px; width: auto; }
+.topnav a.active {
+  opacity: 1;
+  color: #000;
+  font-weight: 900;
+}
+.topnav a.active svg { stroke-width: 2.3; } /* 图标略加粗 */
+
+.topnav a.active::after {
+  content: "";
+  display: block;
+  height: 5px;
+  margin-top: 2px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='5' viewBox='0 0 64 5'%3E%3Cpath d='M1 2.6 Q 5 .6, 9 2.6 T 17 2.6 T 25 2.6 T 33 2.6 T 41 2.6 T 49 2.6 T 57 2.6 T 65 2.6' fill='none' stroke='%232a4db5' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+  background-size: 64px 5px;
+}
+
+body[data-view="home"] .topbar { display: none; }
+
+.home {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 44% 56%;
+  align-items: stretch;
+}
+
+/* ---------- shared section chrome ---------- */
+
+.wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 52px 22px 110px;
+}
+
+.sec-head { margin-bottom: 34px; }
+.sec-head img { height: 64px; width: auto; transform: rotate(-1.2deg); }
+.sec-sub {
+  margin-top: 10px;
+  font-size: 14px;
+  color: var(--muted);
+  letter-spacing: .08em;
+}
+
+.fade { animation: fadeUp .38s var(--ease) both; }
+
+.state {
+  padding: 90px 10px;
+  text-align: center;
+  font-size: 15.5px;
+  color: var(--ink-soft);
+  line-height: 2.1;
+}
+.state .mini { font-size: 12.5px; color: var(--muted); margin-top: 10px; font-family: var(--sans); }
+.state a { color: var(--accent); border-bottom: 1px dashed var(--accent); }
+
+.loading { color: var(--muted); animation: breathe 1.6s ease-in-out infinite; }
+@keyframes breathe { 50% { opacity: .45; } }
+
+.foot {
+  margin-top: 80px;
+  text-align: center;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---------- database / posts ---------- */
+
+.post { padding: 26px 2px 24px; border-bottom: 1px solid var(--hairline); }
+.post:last-of-type { border-bottom: none; }
+
+.post-title a {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.55;
+  color: var(--ink);
+  transition: color .18s var(--ease);
+}
+.post-title a:hover { color: var(--accent); }
+
+.post-meta {
+  margin: 7px 0 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: .06em;
+}
+.post-title { font-family: 'SongtiWeb', 'Songti SC', 'SimSun', serif; }
+.post { position: relative; }
+.post-title a::after { content: ''; position: absolute; inset: 0; }
+.full-meta { font-family: var(--sans); font-size: 12.5px; color: var(--muted); margin-bottom: 22px; }
+.backlink { display: inline-block; margin-bottom: 26px; color: var(--accent); font-family: var(--sans); font-size: 13px; border-bottom: 1px dashed var(--accent); }
+.html-doc { display: block; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(252, 253, 255, .96);
+  backdrop-filter: blur(6px);
+  cursor: zoom-out;
+  animation: fadeUp .25s var(--ease);
+}
+.lightbox img {
+  max-width: 88vw;
+  max-height: 76vh;
+  border-radius: 6px;
+  filter: drop-shadow(0 24px 40px rgba(27, 33, 48, .22));
+}
+.lightbox .cap { margin-top: 16px; font-size: 15px; color: var(--ink-soft); text-align: center; max-width: 80vw; }
+.lightbox .cap .d { display: block; margin-top: 3px; font-family: var(--sans); font-size: 12px; color: var(--muted); }
+
+/* ---------- animations ---------- */
+
+@keyframes floatIn {
+  from { opacity: 0; transform: translateY(26px) rotate(0deg); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .home { grid-template-columns: 1fr; }
+  .topnav { gap: 13px; }
+  .topbar { gap: 14px; }
+}
+
+@media (max-width: 560px) {
+  /* 手机放不下：导航只留图标，汉字隐去，把右边让给手写签名 */
+  .topnav-text { display: none; }
+  .topnav { gap: 16px; }
+  .topnav a.active::after { height: 4px; margin-top: 1px; background-size: 48px 4px; }
+}
+
+@media (max-width: 768px) {
+  /* 手机滚动条是悬浮式，不占宽度：取消桌面上的预留坑，左右对称 */
+  html { scrollbar-gutter: auto; }
+}
+
+@media (max-width: 480px) {
+  .topnav a img { height: 19px; }
+  .wrap { padding: 40px 16px 90px; }
+  .sec-head img { height: 48px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
+
+/* 手机端：隐藏文章标签与日期（Jimmy 2026-09-25 要求） */
+@media(max-width:640px){
+.post-meta,.full-meta {display:none!important}
+}

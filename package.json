@@ -1,0 +1,21 @@
+{
+  "name": "jimmy-blog",
+  "private": true,
+  "scripts": {
+    "build": "cd jimmy-blog-vue && npm ci && npm run build",
+    "deploy": "wrangler d1 migrations apply DB --remote && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.40.0"
+  },
+  "cloudflare": {
+    "bindings": {
+      "ADMIN_TOKEN": {
+        "description": "后台 `/admin` 的登录密码，自己设一个。"
+      },
+      "DB": { "description": "存碎片、文章和设置的数据库，自动创建。" },
+      "FEED_IMG": { "description": "碎片图片和头像的存储桶，自动创建。" },
+      "ART_IMG": { "description": "文章图片的存储桶，自动创建。" }
+    }
+  }
+}
