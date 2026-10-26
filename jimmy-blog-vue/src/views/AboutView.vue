@@ -15,6 +15,7 @@ import IconSvg from '../components/IconSvg.vue'
       <div class="pf-name">jyummy0_</div>
       <div class="pf-bio">咋这么坏</div>
       <div class="pf-sub">你们没有在博客互关</div>
+      <div class="pf-sub"><a href="mailto:8899city@gmail.com">8899city@gmail.com</a></div>
       <a class="pf-btn" href="https://github.com/gguioo" target="_blank" rel="noopener">查看主页</a>
     </div>
   </div>
