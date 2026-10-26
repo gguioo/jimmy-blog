@@ -6,8 +6,6 @@
 
 点上面的按钮即可部署到你自己的 Cloudflare 账号（见第四节）。
 
-在线示例：<https://she.dpdns.org>
-
 ## 截图
 
 | feed | data | 阅读页 |
