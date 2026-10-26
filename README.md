@@ -2,9 +2,25 @@
 
 一个用 Vue 3 + Vite 写的个人博客。前端页面和接口都跑在**同一个 Cloudflare Worker** 里，直接读 D1 数据库和 R2 图片桶，没有反代、没有额外服务器。
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/gguioo/-jimmyblog)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/gguioo/jimmy-blog)
 
 点上面的按钮即可部署到你自己的 Cloudflare 账号（见第四节）。
+
+在线示例：<https://she.dpdns.org>
+
+## 截图
+
+| feed | data | 阅读页 |
+| :---: | :---: | :---: |
+| <img src="docs/screenshots/feed.webp" width="260"> | <img src="docs/screenshots/data.webp" width="260"> | <img src="docs/screenshots/post.webp" width="260"> |
+
+| about | 点开头像 |
+| :---: | :---: |
+| <img src="docs/screenshots/about.webp" width="260"> | <img src="docs/screenshots/avatar.webp" width="260"> |
+
+电脑端：
+
+<img src="docs/screenshots/desktop.webp" width="720">
 
 ---
 
