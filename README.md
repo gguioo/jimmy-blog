@@ -1,4 +1,4 @@
-# Jimmy Blog
+# Hanniel Blog
 
 一个用 Vue 3 + Vite 写的个人博客。前端页面和接口都跑在**同一个 Cloudflare Worker** 里，直接读 D1 数据库和 R2 图片桶，没有反代、没有额外服务器。
 

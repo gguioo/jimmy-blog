@@ -38,7 +38,7 @@ function copy(e: Entry) {
 function share(e: Entry) {
   const url = location.origin + '/?j=' + e.id
   if (navigator.share) {
-    navigator.share({ title: 'Jimmy Blog', text: e.text, url }).catch(() => {})
+    navigator.share({ title: 'Hanniel Blog', text: e.text, url }).catch(() => {})
   } else {
     navigator.clipboard.writeText(url).then(() => toast(e.id + ':share', '链接已复制'))
   }

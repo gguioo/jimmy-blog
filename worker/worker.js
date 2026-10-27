@@ -1,4 +1,4 @@
-// Jimmy Blog Worker：静态页面走 ASSETS，/api 直接读 D1，图片直接从 R2 出
+// Hanniel Blog Worker：静态页面走 ASSETS，/api 直接读 D1，图片直接从 R2 出
 // 后台在 /admin（页面）和 /admin/api/*（接口），代码在 admin.js / admin.html
 // D1 `jy-blog`（feed / articles），R2 `jy-blog-feed`（/f/）、`jy-blog-article`（/a/）
 

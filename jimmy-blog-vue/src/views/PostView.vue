@@ -50,7 +50,7 @@ function load() {
         return
       }
       post.value = p
-      document.title = p.title + ' · Jimmy Blog'
+      document.title = p.title + ' · Hanniel Blog'
     })
     .catch(() => {
       failed.value = true
