@@ -32,11 +32,11 @@ watch(
     // 标题：首页简名，其余带栏目名
     {
       const names: Record<string, string> = {
-        '/': 'Hanniel Blog',
-        '/database': 'Database · Hanniel Blog',
-        '/about': 'About · Hanniel Blog',
+        '/': 'Jimen Blog',
+        '/database': 'Database · Jimen Blog',
+        '/about': 'About · Jimen Blog',
       }
-      document.title = names[p] || 'Hanniel Blog'
+      document.title = names[p] || 'Jimen Blog'
     }
   },
   { immediate: true },

@@ -1,5 +1,5 @@
 /* ============================================================
-   Hanniel Blog — white, handwritten-ink editorial style
+   Jimen Blog — white, handwritten-ink editorial style
    ============================================================ */
 
 :root {
@@ -227,7 +227,7 @@ body[data-view="home"] .topbar { display: none; }
   }
 }
 
-/* 手机端：隐藏文章标签与日期（Jimmy 2026-09-25 要求） */
+/* 手机端：隐藏文章标签与日期（Jimen 2026-09-25 要求） */
 @media(max-width:640px){
 .post-meta,.full-meta {display:none!important}
 }

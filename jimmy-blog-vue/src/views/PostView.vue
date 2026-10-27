@@ -50,7 +50,7 @@ function load() {
         return
       }
       post.value = p
-      document.title = p.title + ' · Hanniel Blog'
+      document.title = p.title + ' · Jimen Blog'
     })
     .catch(() => {
       failed.value = true
@@ -78,5 +78,5 @@ watch(host, () => post.value && render(post.value.html))
       <RouterLink class="backlink" to="/database">← 回 Database</RouterLink>
     </div>
   </div>
-  <div class="foot">© Jimmy · 手写于云端 · Wish me well</div>
+  <div class="foot">© Jimen · 手写于云端 · Wish me well</div>
 </template>
