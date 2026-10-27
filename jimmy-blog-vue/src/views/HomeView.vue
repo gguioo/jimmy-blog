@@ -38,7 +38,7 @@ function copy(e: Entry) {
 function share(e: Entry) {
   const url = location.origin + '/?j=' + e.id
   if (navigator.share) {
-    navigator.share({ title: 'Jimen Blog', text: e.text, url }).catch(() => {})
+    navigator.share({ title: 'Jim Blog', text: e.text, url }).catch(() => {})
   } else {
     navigator.clipboard.writeText(url).then(() => toast(e.id + ':share', '链接已复制'))
   }
@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
       <div v-for="e in entries" :key="e.id" class="fd-item">
         <span class="fd-avatar"><img :src="avatarSrc('/img/jimmy-avatar.jpg')" alt=""></span>
         <div class="fd-main">
-          <div class="fd-head"><span class="fd-name">Jimen</span><span class="fd-date">{{ relTime(e.created_at) }}</span></div>
+          <div class="fd-head"><span class="fd-name">Jim</span><span class="fd-date">{{ relTime(e.created_at) }}</span></div>
           <div v-if="e.text" class="fd-text">{{ e.text }}</div>
           <div v-if="e.photos.length" class="fd-photos" :class="{ one: e.photos.length === 1 }">
             <img
@@ -169,7 +169,7 @@ onBeforeUnmount(() => {
       </div>
     </div>
   </div>
-  <div class="foot">© Jimen · 手写于云端 · Wish me well</div>
+  <div class="foot">© Jim · 手写于云端 · Wish me well</div>
 
   <Teleport to="body">
     <div v-if="lb" class="lightbox" role="dialog" aria-label="photo viewer" @click="lbClick" @touchstart.passive="touchStart" @touchend="touchEnd">

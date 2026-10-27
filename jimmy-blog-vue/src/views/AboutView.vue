@@ -19,5 +19,5 @@ import IconSvg from '../components/IconSvg.vue'
       <a class="pf-btn" href="https://github.com/gguioo" target="_blank" rel="noopener">查看主页</a>
     </div>
   </div>
-  <div class="foot">© Jimen · 手写于云端 · Wish me well</div>
+  <div class="foot">© Jim · 手写于云端 · Wish me well</div>
 </template>

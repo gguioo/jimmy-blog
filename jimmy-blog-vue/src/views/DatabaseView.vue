@@ -59,5 +59,5 @@ onMounted(load)
       </article>
     </div>
   </div>
-  <div class="foot">© Jimen · 手写于云端 · Wish me well</div>
+  <div class="foot">© Jim · 手写于云端 · Wish me well</div>
 </template>
