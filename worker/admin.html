@@ -36,6 +36,9 @@ label{display:block;font-size:13px;color:#6b7086;margin:4px 0 6px}
 .links span{flex:1}
 .links button{padding:2px 8px;font-size:12px}
 .msg{font-size:13px;color:#6b7086;min-height:20px}
+.upmsg{font-size:14px;color:#1d2030;min-height:20px;margin:2px 0 6px}
+.upmsg.err{color:#d6452f}
+progress{width:100%;height:8px;margin:0 0 10px}
 .hide{display:none}
 </style>
 </head>
@@ -59,6 +62,8 @@ label{display:block;font-size:13px;color:#6b7086;margin:4px 0 6px}
         <textarea id="fText" placeholder="写点什么…"></textarea>
         <label>照片（碎片图床）</label>
         <input type="file" id="fFiles" accept="image/*" multiple>
+        <div class="upmsg" id="fUp"></div>
+        <progress id="fBar" class="hide" max="100" value="0"></progress>
         <div class="thumbs" id="fThumbs"></div>
         <button class="pri" id="fPost">发布碎片</button>
         <div class="msg" id="fMsg"></div>
@@ -104,20 +109,24 @@ async function api(path,opt={}){
 }
 // 上传前在手机上转成 JPEG 并压到最长边 2560px；浏览器解不开（如 HEIC）就原样上传
 async function shrink(file){
-  try{const bmp=await createImageBitmap(file);const s=Math.min(1,2560/Math.max(bmp.width,bmp.height));
-    if(s===1&&/^image\/(jpeg|png|webp|gif)$/.test(file.type)&&file.size<4e6)return file;
+  // 小于 1.5MB 的常见格式直接传，不解码（省手机内存）
+  if(/^image\/(jpeg|png|webp|gif)$/.test(file.type)&&file.size<1.5e6)return file;
+  const work=(async()=>{try{const bmp=await createImageBitmap(file);const s=Math.min(1,2560/Math.max(bmp.width,bmp.height));
+    if(s===1&&/^image\/(jpeg|png|webp|gif)$/.test(file.type)&&file.size<4e6){bmp.close&&bmp.close();return file}
     const c=document.createElement('canvas');c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);
-    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
-    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));return b?new File([b],'photo.jpg',{type:'image/jpeg'}):file}
-  catch(_){return file}
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);bmp.close&&bmp.close();
+    const b=await new Promise(r=>c.toBlob(r,'image/jpeg',.88));c.width=c.height=0;return b?new File([b],'photo.jpg',{type:'image/jpeg'}):file}
+  catch(_){return file}})();
+  // 压缩超过 8 秒就放弃压缩，直接传原图
+  return Promise.race([work,new Promise(r=>setTimeout(()=>r(file),8000))]);
 }
-const up=async(kind,file,onp)=>{file=await shrink(file);const fd=new FormData();fd.append('file',file);
+const up=async(kind,file,onp,onstart)=>{file=await shrink(file);onstart&&onstart();const fd=new FormData();fd.append('file',file);
   return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST','/admin/api/upload/'+kind);x.setRequestHeader('Authorization','Bearer '+TOKEN);
     x.upload.onprogress=e=>{if(e.lengthComputable&&onp)onp(e.loaded/e.total)};
     x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch(_){}
       if(x.status===401){logout();return no(new Error('密钥不对'))}
       if(x.status>=200&&x.status<300&&d.url)return ok(d.url);no(new Error(d.error||('HTTP '+x.status)))};
-    x.onerror=()=>no(new Error('网络错误，上传失败'));x.send(fd)})};
+    x.onerror=()=>no(new Error('网络错误，上传失败'));x.timeout=180000;x.ontimeout=()=>no(new Error('上传超时'));x.send(fd)})};
 
 async function login(){
   TOKEN=$('#token').value.trim()||TOKEN;
@@ -142,12 +151,20 @@ $('#avFile').onchange=async e=>{let f=e.target.files[0];e.target.value='';if(!f)
 
 /* ---------- feed ---------- */
 let fPhotos=[];
-$('#fFiles').onchange=async e=>{
-  const files=[...e.target.files];e.target.value='';$('#fMsg').textContent=`上传中 0/${files.length}`;
-  try{for(const [i,f] of files.entries()){fPhotos.push(await up('feed',f,p=>{$('#fMsg').textContent=`上传中 ${i+1}/${files.length} · ${Math.round(p*100)}%`}));$('#fThumbs').innerHTML=fPhotos.map(u=>`<img src="${u}" alt="">`).join('')}$('#fMsg').textContent=`已上传 ${files.length} 张，可以发布了`}
-  catch(err){$('#fMsg').textContent='上传失败：'+err.message}
-  $('#fThumbs').innerHTML=fPhotos.map(u=>`<img src="${u}" alt="">`).join('');
-};
+let fBusy=false;
+async function onPick(e){
+  const files=[...(e.target.files||[])];if(!files.length||fBusy)return;fBusy=true;e.target.value='';
+  const um=$('#fUp'),bar=$('#fBar');um.classList.remove('err');bar.classList.remove('hide');bar.value=0;
+  const show=(i,ph,p)=>{um.textContent=`第 ${i+1}/${files.length} 张 · ${ph}${p!=null?' '+Math.round(p*100)+'%':''}`;bar.value=Math.round(((i+(p||0))/files.length)*100)};
+  let done=0;
+  try{for(const [i,f] of files.entries()){show(i,'处理中…');
+      const url=await up('feed',f,p=>show(i,'上传中',p),()=>show(i,'上传中',0));
+      fPhotos.push(url);done++;$('#fThumbs').innerHTML=fPhotos.map(u=>`<img src="${u}" alt="">`).join('')}
+    bar.value=100;um.textContent=`已上传 ${done} 张，可以发布了`}
+  catch(err){um.classList.add('err');um.textContent=`上传失败（已成功 ${done} 张）：${err.message}`}
+  fBusy=false;setTimeout(()=>bar.classList.add('hide'),1500);
+}
+$('#fFiles').addEventListener('change',onPick);$('#fFiles').addEventListener('input',onPick);
 $('#fPost').onclick=async()=>{
   const text=$('#fText').value;if(!text.trim()&&!fPhotos.length)return;
   $('#fPost').disabled=true;
