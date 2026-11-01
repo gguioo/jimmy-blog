@@ -157,7 +157,7 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
 
 /* 电脑宽屏：顶栏变成固定的左侧栏（头像、名字、竖排导航），内容在右边 */
 @media (min-width: 1100px) {
-  .topbar, body[data-view="home"] .topbar {
+  body .topbar, body[data-view="home"] .topbar {
     position: fixed; top: 0; bottom: 0;
     left: max(24px, calc(50vw - 540px));
     width: 220px; max-width: none; margin: 0;
