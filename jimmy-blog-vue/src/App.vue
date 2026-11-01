@@ -131,6 +131,12 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
     <button ref="avBtn" type="button" class="nav-avatar" aria-label="头像" @click="openAvatar">
       <img :src="avatarSrc('/img/me-avatar.jpg')" alt="">
     </button>
+    <!-- 只在电脑宽屏的左侧栏里显示 -->
+    <div class="side-id">
+      <div class="side-name">Jim</div>
+      <div class="side-bio">咋这么坏</div>
+    </div>
+    <div class="side-foot">© Jim · 手写于云端</div>
   </header>
 
   <Teleport to="body">
@@ -147,6 +153,29 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
 <style>
 .nav-avatar { margin-left: auto; width: 34px; height: 34px; padding: 0; border: 1px solid #e6e6e6; border-radius: 50%; overflow: hidden; background: #fff; cursor: pointer; flex: none; }
 .nav-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.side-id, .side-foot { display: none; }
+
+/* 电脑宽屏：顶栏变成固定的左侧栏（头像、名字、竖排导航），内容在右边 */
+@media (min-width: 1100px) {
+  .topbar, body[data-view="home"] .topbar {
+    position: fixed; top: 0; bottom: 0;
+    left: max(24px, calc(50vw - 540px));
+    width: 220px; max-width: none; margin: 0;
+    flex-direction: column; align-items: flex-start; gap: 0;
+    padding: 64px 28px 36px 0;
+    border-bottom: none; border-right: 1px solid var(--hairline);
+    transform: none !important;
+  }
+  .nav-avatar { order: -2; margin: 0 0 18px; width: 72px; height: 72px; }
+  .side-id { display: block; order: -1; margin-bottom: 34px; }
+  .side-name { font-size: 20px; font-weight: 700; color: #111; line-height: 1.3; }
+  .side-bio { margin-top: 4px; font-size: 14px; color: var(--muted); }
+  .topbar .topnav { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .topbar .topnav a { font-size: 17px; }
+  .side-foot { display: block; margin-top: auto; font-size: 12px; color: var(--muted); }
+  #view { margin-left: calc(max(24px, 50vw - 540px) + 248px); max-width: 800px; }
+}
+
 .av-pop { position: fixed; inset: 0; z-index: 200; background: rgba(255, 255, 255, 0); transition: background .9s ease; cursor: zoom-out; }
 .av-pop.on { background: rgba(255, 255, 255, .94); }
 .av-big { position: fixed; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 rgba(0, 0, 0, 0);
