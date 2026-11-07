@@ -32,7 +32,7 @@ function chars(e: Entry) {
   return Array.from(e.text).map((c, i) => ({
     c,
     blank: /\s/.test(c),
-    r: tilt(e.id * 1000 + i, 14),
+    r: tilt(e.id * 1000 + i, 5),
     y: ((rnd(e.id * 777 + i) * 2 - 1) * 1.5).toFixed(1) + 'px',
   }))
 }
