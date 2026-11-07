@@ -29,14 +29,6 @@ function bigTilt(seed: number) {
   const v = 3 + rnd(seed) * 4
   return (rnd(seed + 99) < 0.5 ? -v : v).toFixed(1) + 'deg'
 }
-function chars(e: Entry) {
-  return Array.from(e.text).map((c, i) => ({
-    c,
-    blank: /\s/.test(c),
-    r: tilt(e.id * 1000 + i, 5),
-    y: ((rnd(e.id * 777 + i) * 2 - 1) * 1.5).toFixed(1) + 'px',
-  }))
-}
 const loading = ref(true)
 const failed = ref(false)
 
@@ -167,7 +159,7 @@ onBeforeUnmount(() => {
         <span class="fd-avatar"><img :src="avatarSrc('/img/jimmy-avatar.jpg')" alt=""></span>
         <div class="fd-main">
           <div class="fd-head"><span class="fd-name">Jim</span><span class="fd-date">{{ relTime(e.created_at) }}</span></div>
-          <div v-if="e.text" class="fd-text" :aria-label="e.text"><template v-for="(k, i) in chars(e)" :key="i"><template v-if="k.blank">{{ k.c }}</template><span v-else class="fd-ch" :style="{ transform: `translateY(${k.y}) rotate(${k.r})` }" aria-hidden="true">{{ k.c }}</span></template></div>
+          <div v-if="e.text" class="fd-text">{{ e.text }}</div>
           <div v-if="e.photos.length" class="fd-photos" :class="{ one: e.photos.length === 1 }">
             <img
               v-for="(src, i) in e.photos"
@@ -205,8 +197,11 @@ onBeforeUnmount(() => {
 
 <style>
 .fd-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; max-width: 420px; }
-.fd-ch { display: inline-block; }
-.fd-item { transform-origin: 30% 50%; }
+.fd-item { transform-origin: 50% 50%; position: relative; background: transparent;
+  border: 22px solid transparent; border-image: url(/img/feed-frame.webp) 90 fill / 22px stretch;
+  padding: 10px 12px 8px; margin: 0 6px; }
+#fd-list .fd-item + .fd-item { border-top: 22px solid transparent; margin-top: -14px; }
+.fd-item:active, .fd-item:hover { z-index: 5; }
 .fd-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 8px; background: #f2f2f2; cursor: zoom-in; }
 .fd-photos.one { display: block; }
 .fd-photos.one img { width: auto; max-width: min(100%, 360px); max-height: 420px; aspect-ratio: auto; }
