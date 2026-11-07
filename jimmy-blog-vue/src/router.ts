@@ -10,7 +10,10 @@ export const router = createRouter({
     { path: '/about', component: () => import('./views/AboutView.vue') },
     { path: '/:pathMatch(.*)*', redirect: '/' }, // 未知路径回首页
   ],
-  scrollBehavior() {
+  // 同一页面内的返回（关灯箱、收头像）不动滚动位置；浏览器前进后退回到原位置；其余换页回顶部
+  scrollBehavior(to, from, saved) {
+    if (to.path === from.path) return false
+    if (saved) return saved
     return { top: 0 }
   },
 })

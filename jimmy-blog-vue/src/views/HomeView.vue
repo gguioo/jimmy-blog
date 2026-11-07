@@ -109,7 +109,7 @@ function load() {
 const lb = ref<{ photos: string[]; i: number } | null>(null)
 function openLb(photos: string[], i: number) {
   lb.value = { photos, i }
-  history.pushState({ lb: 1 }, '')
+  history.pushState({ ...history.state, lb: 1 }, '')
 }
 function closeLb() {
   if (!lb.value) return

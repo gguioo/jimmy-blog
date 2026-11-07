@@ -84,7 +84,7 @@ function openAvatar() {
   busy = true
   box.value = rectStyle()
   pop.value = true
-  history.pushState({ avatar: 1 }, '')
+  history.pushState({ ...history.state, avatar: 1 }, '')
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
       big.value = true
