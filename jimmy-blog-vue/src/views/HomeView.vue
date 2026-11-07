@@ -223,4 +223,9 @@ onBeforeUnmount(() => {
 .pc.photo { background: #fff; padding: 8px 8px 30px; border-radius: 3px; box-shadow: 0 12px 28px rgba(20,23,43,.18), 0 1px 2px rgba(20,23,43,.1); cursor: zoom-in; }
 .pc.photo img { display: block; width: 100%; aspect-ratio: var(--ar); object-fit: cover; border-radius: 2px; background: #eceef3; }
 .pc.photo span { position: absolute; left: 0; right: 0; bottom: 7px; text-align: center; font-family: 'CaveatNav', 'Bradley Hand', cursive; font-size: 15px; color: #6b7086; }
+/* 电脑版：碎片可以压到左侧栏上面，不被它挡住或裁掉 */
+@media (min-width: 1100px) {
+  .feed { position: relative; z-index: 51; }
+  .board { overflow-x: visible; }
+}
 </style>
