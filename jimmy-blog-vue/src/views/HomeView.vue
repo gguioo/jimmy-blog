@@ -14,6 +14,23 @@ interface Entry {
 }
 
 const entries = ref<Entry[]>([])
+
+// 无规律倾斜：按条目 id + 序号做种子，刷新后角度不变
+function rnd(seed: number) {
+  const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453
+  return x - Math.floor(x) // 0..1
+}
+function tilt(seed: number, max: number) {
+  return ((rnd(seed) * 2 - 1) * max).toFixed(1) + 'deg'
+}
+function chars(e: Entry) {
+  return Array.from(e.text).map((c, i) => ({
+    c,
+    blank: /\s/.test(c),
+    r: tilt(e.id * 1000 + i, 14),
+    y: ((rnd(e.id * 777 + i) * 2 - 1) * 1.5).toFixed(1) + 'px',
+  }))
+}
 const loading = ref(true)
 const failed = ref(false)
 
@@ -140,17 +157,18 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-else id="fd-list">
-      <div v-for="e in entries" :key="e.id" class="fd-item">
+      <div v-for="e in entries" :key="e.id" class="fd-item" :style="{ transform: `rotate(${tilt(e.id * 31 + 7, 2.2)})` }">
         <span class="fd-avatar"><img :src="avatarSrc('/img/jimmy-avatar.jpg')" alt=""></span>
         <div class="fd-main">
           <div class="fd-head"><span class="fd-name">Jim</span><span class="fd-date">{{ relTime(e.created_at) }}</span></div>
-          <div v-if="e.text" class="fd-text">{{ e.text }}</div>
+          <div v-if="e.text" class="fd-text" :aria-label="e.text"><template v-for="(k, i) in chars(e)" :key="i"><template v-if="k.blank">{{ k.c }}</template><span v-else class="fd-ch" :style="{ transform: `translateY(${k.y}) rotate(${k.r})` }" aria-hidden="true">{{ k.c }}</span></template></div>
           <div v-if="e.photos.length" class="fd-photos" :class="{ one: e.photos.length === 1 }">
             <img
               v-for="(src, i) in e.photos"
               :key="src"
               :src="src"
               alt=""
+              :style="{ transform: `rotate(${tilt(e.id * 53 + i * 17 + 3, 4)})` }"
               loading="lazy"
               @click="openLb(e.photos, i)"
             >
@@ -181,6 +199,8 @@ onBeforeUnmount(() => {
 
 <style>
 .fd-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; max-width: 420px; }
+.fd-ch { display: inline-block; }
+.fd-item { transform-origin: 30% 50%; }
 .fd-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 8px; background: #f2f2f2; cursor: zoom-in; }
 .fd-photos.one { display: block; }
 .fd-photos.one img { width: auto; max-width: min(100%, 360px); max-height: 420px; aspect-ratio: auto; }
