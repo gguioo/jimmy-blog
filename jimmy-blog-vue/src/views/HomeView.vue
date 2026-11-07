@@ -15,9 +15,10 @@ interface Entry {
 
 const entries = ref<Entry[]>([])
 
-// 无规律倾斜：按条目 id + 序号做种子，刷新后角度不变
+// 无规律倾斜：每次打开页面随机一个盐，刷新后角度重新随机
+const SALT = Math.random() * 10000
 function rnd(seed: number) {
-  const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453
+  const x = Math.sin((seed + SALT) * 12.9898 + 78.233) * 43758.5453
   return x - Math.floor(x) // 0..1
 }
 function tilt(seed: number, max: number) {
