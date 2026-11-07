@@ -23,6 +23,11 @@ function rnd(seed: number) {
 function tilt(seed: number, max: number) {
   return ((rnd(seed) * 2 - 1) * max).toFixed(1) + 'deg'
 }
+// 整体倾斜：保证至少斜 3°，最多 7°，左右随机
+function bigTilt(seed: number) {
+  const v = 3 + rnd(seed) * 4
+  return (rnd(seed + 99) < 0.5 ? -v : v).toFixed(1) + 'deg'
+}
 function chars(e: Entry) {
   return Array.from(e.text).map((c, i) => ({
     c,
@@ -157,7 +162,7 @@ onBeforeUnmount(() => {
     </div>
 
     <div v-else id="fd-list">
-      <div v-for="e in entries" :key="e.id" class="fd-item" :style="{ transform: `rotate(${tilt(e.id * 31 + 7, 2.2)})` }">
+      <div v-for="e in entries" :key="e.id" class="fd-item" :style="{ transform: `rotate(${bigTilt(e.id * 31 + 7)})` }">
         <span class="fd-avatar"><img :src="avatarSrc('/img/jimmy-avatar.jpg')" alt=""></span>
         <div class="fd-main">
           <div class="fd-head"><span class="fd-name">Jim</span><span class="fd-date">{{ relTime(e.created_at) }}</span></div>
@@ -168,7 +173,7 @@ onBeforeUnmount(() => {
               :key="src"
               :src="src"
               alt=""
-              :style="{ transform: `rotate(${tilt(e.id * 53 + i * 17 + 3, 4)})` }"
+              :style="{ transform: `rotate(${tilt(e.id * 53 + i * 17 + 3, 6)})` }"
               loading="lazy"
               @click="openLb(e.photos, i)"
             >
