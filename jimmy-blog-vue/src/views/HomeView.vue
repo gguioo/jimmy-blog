@@ -207,7 +207,7 @@ onBeforeUnmount(() => {
 
 <style>
 @font-face { font-family: 'CaveatNav'; src: url(/fonts/caveat-latin.woff2) format('woff2'); font-display: swap; }
-.board { overflow-x: clip; display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; padding: 10px 0 60px; }
+.board { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; padding: 10px 0 60px; }
 .pc { position: relative; margin: -10px -12px; transition: transform .45s cubic-bezier(.22,.9,.24,1.2), box-shadow .3s; cursor: pointer;
   transform: translate(var(--x), var(--y)) rotate(var(--r)); z-index: var(--z); }
 .pc.lift { transform: translate(var(--x), var(--y)) rotate(0) scale(1.06); z-index: 40 !important; }
@@ -226,6 +226,7 @@ onBeforeUnmount(() => {
 /* 电脑版：碎片可以压到左侧栏上面，不被它挡住或裁掉 */
 @media (min-width: 1100px) {
   .feed { position: relative; z-index: 51; }
-  .board { overflow-x: visible; }
 }
+/* 碎片不在容器边上裁掉，只在屏幕边缘自然出界，且不产生横向滚动 */
+html { overflow-x: clip; }
 </style>
