@@ -9,9 +9,9 @@ const route = useRoute()
 
 // 四栏的统一定义：active 判断规则和图标都在这
 const tabs = [
-  { path: '/', label: 'feed', icon: 'shard', exact: true },
-  { path: '/database', label: 'data', icon: 'database' },
-  { path: '/about', label: 'about', icon: 'about' },
+  { path: '/', label: 'feed', hw: '/img/nav-feed.webp', icon: 'shard', exact: true },
+  { path: '/database', label: 'data', hw: '/img/nav-data.webp', icon: 'database' },
+  { path: '/about', label: 'about', hw: '/img/nav-about.webp', icon: 'about' },
 ]
 function isActive(t: (typeof tabs)[number]) {
   if (t.exact) return route.path === '/'
@@ -124,7 +124,7 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
         :to="t.path"
         :class="{ active: isActive(t) }"
       >
-        <IconSvg :name="t.icon" /><span class="topnav-text">{{ t.label }}</span>
+        <IconSvg :name="t.icon" /><img class="topnav-hw" :src="t.hw" :alt="t.label" width="120" height="64">
       </RouterLink>
     </nav>
 

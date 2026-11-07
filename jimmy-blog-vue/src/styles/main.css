@@ -68,6 +68,7 @@ img { display: block; }
 .topnav a { display: block; opacity: .45; transition: opacity .2s var(--ease); }
 .topnav a:hover { opacity: .8; }
 .topnav a img { height: 24px; width: auto; }
+.topnav a img.topnav-hw { height: 22px; width: auto; display: block; } /* 手写导航字 */
 .topnav a.active {
   opacity: 1;
   color: #000;
@@ -205,6 +206,7 @@ body[data-view="home"] .topbar { display: none; }
   /* 手机放不下：导航只留图标，汉字隐去，把右边让给手写签名 */
   .topnav-text { display: none; }
   .topnav { gap: 16px; }
+  .topnav a img.topnav-hw { height: 19px; }
   .topnav a.active::after { height: 4px; margin-top: 1px; background-size: 48px 4px; }
 }
 
