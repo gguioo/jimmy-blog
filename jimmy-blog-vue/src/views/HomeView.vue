@@ -46,7 +46,7 @@ function buildBoard(list: Entry[]) {
         style: { ...pos(), width: R(W * 0.42, W * 0.62).toFixed(0) + 'px' } })
     e.photos.forEach((src, k) =>
       out.push({ key: e.id + 'p' + k, kind: 'photo', e, date, src, k,
-        style: { ...pos(), '--ar': pick(['1/1', '4/5', '4/3', '3/4']), width: R(W * 0.34, W * 0.5).toFixed(0) + 'px' } }))
+        style: { ...pos(), width: Math.min(R(W * 0.62, W * 0.85), 520).toFixed(0) + 'px' } }))
   })
   // 稍微打乱，同一条的碎片不总挨在一起
   for (let i = out.length - 1; i > 0; i--) {
@@ -221,7 +221,7 @@ onBeforeUnmount(() => {
 .pc.note.tape::before { content: ""; position: absolute; top: -10px; left: 50%; width: 70px; height: 22px; transform: translateX(-50%) rotate(-3deg);
   background: rgba(255,255,255,.55); box-shadow: 0 1px 3px rgba(0,0,0,.08); border-left: 1px dashed rgba(0,0,0,.06); border-right: 1px dashed rgba(0,0,0,.06); }
 .pc.photo { background: #fff; padding: 8px 8px 30px; border-radius: 3px; box-shadow: 0 12px 28px rgba(20,23,43,.18), 0 1px 2px rgba(20,23,43,.1); cursor: zoom-in; }
-.pc.photo img { display: block; width: 100%; aspect-ratio: var(--ar); object-fit: cover; border-radius: 2px; background: #eceef3; }
+.pc.photo img { display: block; width: 100%; height: auto; min-height: 60px; border-radius: 2px; background: #eceef3; }
 .pc.photo span { position: absolute; left: 0; right: 0; bottom: 7px; text-align: center; font-family: 'CaveatNav', 'Bradley Hand', cursive; font-size: 15px; color: #6b7086; }
 /* 电脑版：碎片可以压到左侧栏上面，不被它挡住或裁掉 */
 @media (min-width: 1100px) {
