@@ -122,6 +122,7 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
         v-for="t in tabs"
         :key="t.path"
         :to="t.path"
+        replace
         :class="{ active: isActive(t) }"
       >
         <IconSvg :name="t.icon" /><img class="topnav-hw" :src="t.hw" :alt="t.label" width="120" height="64">
@@ -170,8 +171,34 @@ onBeforeUnmount(() => window.removeEventListener('popstate', onPop))
   .side-id { display: block; order: -1; margin-bottom: 34px; }
   .side-name { font-size: 20px; font-weight: 700; color: #111; line-height: 1.3; }
   .side-bio { margin-top: 4px; font-size: 14px; color: var(--muted); }
-  .topbar .topnav { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .topbar .topnav a { font-size: 17px; }
+  /* 左侧导航：白色手写卡片，从上到下交错叠放，大小不一 */
+  .topbar .topnav { flex-direction: column; align-items: flex-start; gap: 0; padding: 4px 0 0 6px; }
+  .topbar .topnav a {
+    --r: 0deg; --dx: 0px;
+    position: relative; opacity: 1; padding: 14px 22px; border-radius: 18px; background: #fff;
+    box-shadow: 0 1px 2px rgba(20, 23, 43, .08), 0 8px 22px rgba(20, 23, 43, .12);
+    transform: translateX(var(--dx)) rotate(var(--r));
+    transition: transform .45s cubic-bezier(.34, 1.56, .64, 1), box-shadow .3s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .topbar .topnav a svg, .topbar .topnav a.active::after { display: none; }
+  .topbar .topnav a img.topnav-hw { opacity: .55; transition: opacity .25s ease; }
+  .topbar .topnav a:nth-child(1) { --r: -6deg; --dx: 0px; z-index: 3; }
+  .topbar .topnav a:nth-child(1) img.topnav-hw { height: 46px; }
+  .topbar .topnav a:nth-child(2) { --r: 5deg; --dx: 58px; margin-top: -20px; z-index: 2; }
+  .topbar .topnav a:nth-child(2) img.topnav-hw { height: 34px; }
+  .topbar .topnav a:nth-child(3) { --r: -3deg; --dx: 14px; margin-top: -14px; z-index: 1; padding: 10px 18px; }
+  .topbar .topnav a:nth-child(3) img.topnav-hw { height: 27px; }
+  .topbar .topnav a:hover { transform: translateX(var(--dx)) translateY(-5px) rotate(0deg); box-shadow: 0 2px 4px rgba(20, 23, 43, .08), 0 16px 34px rgba(20, 23, 43, .16); }
+  .topbar .topnav a:hover img.topnav-hw { opacity: .85; }
+  .topbar .topnav a:active { transform: translateX(var(--dx)) scale(.9) rotate(0deg); transition-duration: .12s; }
+  .topbar .topnav a.active { z-index: 5; animation: navPop .55s cubic-bezier(.34, 1.56, .64, 1); }
+  .topbar .topnav a.active img.topnav-hw { opacity: 1; }
+  @keyframes navPop {
+    0% { transform: translateX(var(--dx)) scale(.88) rotate(0deg); }
+    60% { transform: translateX(var(--dx)) scale(1.08) rotate(calc(var(--r) * -1)); }
+    100% { transform: translateX(var(--dx)) scale(1) rotate(var(--r)); }
+  }
   .side-foot { display: block; margin-top: auto; font-size: 12px; color: var(--muted); }
   #view { margin-left: calc(max(24px, 50vw - 540px) + 248px); max-width: 800px; }
 }
